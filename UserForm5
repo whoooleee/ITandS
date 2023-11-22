@@ -1,0 +1,41 @@
+Private Sub CommandButton1_Click()
+    Dim ID_date As String
+    Dim ID_costumer As String
+    Dim curr_date As Date
+    
+    
+    ID_costumer = Val(TextBox1.Text)
+    curr_date = DateValue(TextBox2.Text) ' Ïðåîáðàçóåì òåêñò ââåäåííûé â TextBox2 â äàòó
+    
+    If ID_costumer = 0 Or curr_date = "01.01.2001" Then
+    
+        If ID_costumer = 0 Then
+            ID_date = ID_costumer & "-" & Format(curr_date, "dd.mm.yyyy") ' Ñîõðàíÿåì äàòó â íóæíîì ôîðìàòå
+        End If
+        
+        If curr_date = "01.01.2001" Then
+            ID_date = ID_costumer & "-" & 0
+        End If
+        
+    Else
+        ID_date = ID_costumer & "-" & Format(curr_date, "dd.mm.yyyy")
+    End If
+    
+    
+    UserForm6.Tag = ID_date
+    Me.Hide
+    UserForm6.Show
+End Sub
+
+Private Sub CommandButton2_Click()
+    Me.Hide
+    UserForm1.Show
+End Sub
+
+Private Sub Label1_Click()
+
+End Sub
+
+Private Sub TextBox1_Change()
+
+End Sub
