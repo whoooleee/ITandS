@@ -1,0 +1,61 @@
+Private Sub CommandButton1_Click()
+    Dim cell As Range
+    Dim ID_costumer As Integer
+    lastRow = 0
+
+    With UserForm2
+        price = TextBox1.Text
+        costumer = ListBox1.Value
+    End With
+    
+    For Each cell In Sheets("Список покупателей").Range("B2:B11")
+        If cell.Value = costumer Then
+            ID_costumer = cell.Offset(0, -1).Value
+        End If
+    Next cell
+    
+    lastRow = Worksheets("Список договоров").Cells(Rows.Count, 1).End(xlUp).Row
+    lastRow = lastRow + 1 ' увеличение значения переменной lastRow на 1
+    
+    lastRow_history = Worksheets("История").Cells(Rows.Count, 1).End(xlUp).Row
+    lastRow_history = lastRow_history + 1 ' увеличение значения переменной lastRow на 1
+    
+    With Worksheets("Список договоров")
+        .Cells(lastRow, 1).Value = Worksheets("Список договоров").Range("AA1")
+        .Cells(lastRow, 2).Value = ID_costumer
+        .Cells(lastRow, 3).Value = Date
+        .Cells(lastRow, 4).Value = price
+    End With
+    
+     
+    Worksheets("История").Cells(lastRow_history, 1).Value = Worksheets("Список договоров").Cells(lastRow, 1).Value
+    Worksheets("История").Cells(lastRow_history, 2).Value = Worksheets("Список договоров").Cells(lastRow, 2).Value
+    Worksheets("История").Cells(lastRow_history, 3).Value = Worksheets("Список договоров").Cells(lastRow, 3).Value
+    Worksheets("История").Cells(lastRow_history, 4).Value = Worksheets("Список договоров").Cells(lastRow, 4).Value
+    Worksheets("История").Cells(lastRow_history, 5).Value = "Добавление"
+    
+    Worksheets("Список договоров").Range("AA1") = Worksheets("Список договоров").Range("AA1") + 1
+
+
+End Sub
+
+Private Sub CommandButton2_Click()
+    Me.Hide
+    UserForm1.Show
+End Sub
+
+Private Sub ListBox1_Click()
+
+End Sub
+
+Private Sub TextBox1_Change()
+
+End Sub
+
+Private Sub UserForm_Initialize()
+    Dim customerList As Range
+    Set customerList = Sheets("Список покупателей").Range("B2:B11")
+    For Each customer In customerList
+        ListBox1.AddItem customer.Value
+    Next customer
+End Sub
