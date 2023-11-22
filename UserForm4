@@ -1,0 +1,52 @@
+Private Sub CommandButton1_Click()
+
+    Dim found As Range
+    Dim IDs() As String
+    IDs = Split(Me.Tag, "|")
+    Dim ID_1 As String
+    Dim ID_2 As String
+    ID_1 = IDs(0)
+    ID_2 = IDs(1)
+    
+    lastRow = Worksheets("История").Cells(Rows.Count, 1).End(xlUp).Row
+    
+    ' Поиск строки с комбинацией ID_1, ID_2
+    Set found = Sheets("Список договоров").Range("A:B").Find(What:=ID_1, LookIn:=xlValues, LookAt:=xlWhole)
+    If Not found Is Nothing Then
+        If found.Offset(0, 1).Value = ID_2 Then
+            
+            ' Копирование строки перед удалением
+            found.EntireRow.Copy Destination:=Sheets("История").Cells(lastRow, 1)
+            Sheets("История").Cells(lastRow, 5).Value = "Удаление"
+            
+            
+            ' Удаление строки
+            found.EntireRow.Delete Shift:=xlUp
+            
+            MsgBox "Запись удалена и скопирована в лист 'История'"
+        Else
+            MsgBox "Запись не найдена"
+        End If
+    End If
+    Me.Hide
+
+End Sub
+
+Private Sub CommandButton2_Click()
+    Me.Hide
+    
+End Sub
+
+Private Sub UserForm_Activate()
+    Dim del_ID As String
+    Dim ID_1 As String
+    Dim ID_2 As String
+    
+    del_ID = UserForm4.Tag
+    
+    ID_1 = Split(del_ID, "-")(0)
+    ID_2 = Split(del_ID, "-")(1)
+    
+    Me.Tag = ID_1 & "|" & ID_2
+    
+End Sub
