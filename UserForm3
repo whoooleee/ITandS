@@ -1,0 +1,81 @@
+Private Sub CommandButton1_Click()
+    Dim Record As String
+    Record = ListBox1.Value
+    Dim delPos As Integer
+    Dim del_ID As String
+    
+    delPos = InStr(Record, " ")
+    del_ID = Left(Record, delPos - 1)
+    
+    UserForm4.Tag = del_ID
+    UserForm4.Show
+
+End Sub
+
+Private Sub CommandButton2_Click()
+    Me.Hide
+    UserForm7.Show
+End Sub
+
+
+Private Sub ListBox1_Click()
+
+End Sub
+
+Private Sub UserForm_Activate()
+    Dim pair_to_search As String
+    Dim ID_to_search As String
+    Dim Date_to_search As Date
+    Dim ws As Worksheet
+    Dim i As Integer
+    
+    ' Получаем ссылку на лист "Список договоров"
+    Set ws = ThisWorkbook.Worksheets("Список договоров")
+    
+    pair_to_search = UserForm3.Tag
+    
+    ID_to_search = Split(pair_to_search, "-")(0)
+    Date_to_search = Split(pair_to_search, "-")(1)
+    
+    If Not Date_to_search = 0 Then
+        ID_to_search = Split(pair_to_search, "-")(0)
+        Date_to_search = Format(Split(pair_to_search, "-")(1), "dd.mm.yy")
+    End If
+        
+    ' Очищаем ListBox1 перед добавлением новых элементов
+    ListBox1.Clear
+    
+    If Date_to_search = 0 Then
+    ' Цикл для перебора строк в листе "Список договоров"
+        For i = 2 To ws.Cells(ws.Rows.Count, 2).End(xlUp).Row
+            ' Проверяем условия для каждой строки
+            If ws.Cells(i, 2).Value = ID_to_search Then
+                ' Добавляем строку в ListBox1 как отдельный элемент
+                ListBox1.AddItem ws.Cells(i, 1).Value & "-" & ws.Cells(i, 2).Value & " от " & ws.Cells(i, 3).Value & " на сумму " & ws.Cells(i, 4).Value
+            End If
+        Next i
+    End If
+    
+    If ID_to_search = 0 Then
+        ' Цикл для перебора строк в листе "Список договоров"
+        For i = 2 To ws.Cells(ws.Rows.Count, 2).End(xlUp).Row
+            ' Проверяем условия для каждой строки
+            If ws.Cells(i, 3).Value = Date_to_search Then
+                ' Добавляем строку в ListBox1 как отдельный элемент
+                ListBox1.AddItem ws.Cells(i, 1).Value & "-" & ws.Cells(i, 2).Value & " от " & ws.Cells(i, 3).Value & " на сумму " & ws.Cells(i, 4).Value
+            End If
+        Next i
+        
+    Else
+        ' Цикл для перебора строк в листе "Список договоров"
+        For i = 2 To ws.Cells(ws.Rows.Count, 2).End(xlUp).Row
+            ' Проверяем условия для каждой строки
+            If ws.Cells(i, 3).Value = Date_to_search And ws.Cells(i, 2).Value = ID_to_search Then
+                ' Добавляем строку в ListBox1 как отдельный элемент
+                ListBox1.AddItem ws.Cells(i, 1).Value & "-" & ws.Cells(i, 2).Value & " от " & ws.Cells(i, 3).Value & " на сумму " & ws.Cells(i, 4).Value
+            End If
+        Next i
+    End If
+    
+
+End Sub
