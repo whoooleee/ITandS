@@ -1,0 +1,143 @@
+Private Sub CommandButton1_Click()
+    
+    Dim full_list As String
+    Dim n_o As String
+    Dim buy_date As String
+    Dim numeric_buyer As Integer
+    Dim price As String
+    
+    full_list = ListBox1.Value
+    
+    n_o = Split(full_list, " ")(0)
+    buy_date = Split(full_list, " ")(2)
+    price = Split(full_list, " ")(5)
+    numeric_buyer = CInt(Split(Split(full_list, " ")(0), "-")(1))
+    
+    Dim ps As Worksheet
+    Set ps = ThisWorkbook.Sheets.Add(After:=ThisWorkbook.Sheets(ThisWorkbook.Sheets.Count))
+    ps.Name = "Print Sheet"
+    
+    ' Копирование данных из "Шаблона квитанции"
+    ThisWorkbook.Sheets("Шаблон квитанции").Range("A1:F12").Copy ps.Range("A1")
+    
+    ' Сохранение высоты строк из "Шаблона квитанции"
+    Dim i As Integer
+    For i = 1 To 12
+        ps.Rows(i).RowHeight = ThisWorkbook.Sheets("Шаблон квитанции").Rows(i).RowHeight
+    Next i
+    
+    ' Сохраняем ширину столбцов
+    Dim j As Integer
+    For j = 1 To 6
+        ps.Columns(j).ColumnWidth = ThisWorkbook.Sheets("Шаблон квитанции").Columns(j).ColumnWidth
+    Next j
+    
+    Worksheets("Print Sheet").Range("A7").Value = Replace(Worksheets("Print Sheet").Range("A7").Value, "N-O", n_o)
+    Worksheets("Print Sheet").Range("A7").Value = Replace(Worksheets("Print Sheet").Range("A7").Value, "DATE", buy_date)
+    Worksheets("Print Sheet").Range("A8").Value = Replace(Worksheets("Print Sheet").Range("A8").Value, "N-O", n_o)
+    Worksheets("Print Sheet").Range("A8").Value = Replace(Worksheets("Print Sheet").Range("A8").Value, "DATE", buy_date)
+    Worksheets("Print Sheet").Range("E12").Value = Replace(Worksheets("Print Sheet").Range("E12").Value, "price", price)
+    Worksheets("Print Sheet").Range("F12").Value = Replace(Worksheets("Print Sheet").Range("F12").Value, "price", price)
+    Worksheets("Print Sheet").Range("C10").Value = Replace(Worksheets("Print Sheet").Range("C10").Value, "curr_buyer", Worksheets("Список покупателей").Range("B" & CStr(numeric_buyer + 1)))
+    
+    Dim rng As Range
+    Dim wordApp As Object
+    Dim wordDoc As Object
+    Dim fileName As String
+    
+    ' Выбираем и копируем нужный диапазон из "Print sheet"
+    Set rng = ThisWorkbook.Worksheets("Print sheet").Range("A1:F12")
+    rng.Copy
+    
+    ' Создаем новый экземпляр приложения Word
+    Set wordApp = CreateObject("Word.Application")
+    wordApp.Visible = True
+    
+    ' Создаем новый документ Word
+    Set wordDoc = wordApp.Documents.Add
+    
+    ' Вставляем скопированный диапазон в новый документ
+    wordApp.Selection.Paste
+    
+    ' Запрашиваем у пользователя название файла
+    fileName = InputBox("Введите название файла:", "Сохранить документ")
+    
+    ' Получаем путь к папке, где находится книга Excel
+    filePath = ThisWorkbook.Path & Application.PathSeparator
+    
+    ' Сохраняем документ Word в той же папке, где находится книга Excel
+    wordDoc.SaveAs filePath & fileName
+    
+    ' Закрываем и удаляем "Print sheet"
+    Application.DisplayAlerts = False
+    ThisWorkbook.Worksheets("Print sheet").Delete
+    Application.DisplayAlerts = True
+    
+End Sub
+
+Private Sub CommandButton2_Click()
+    Me.Hide
+    UserForm5.Show
+End Sub
+
+Private Sub ListBox1_Click()
+
+End Sub
+
+Private Sub UserForm_Activate()
+    Dim pair_to_search As String
+    Dim ID_to_search As String
+    Dim Date_to_search As Date
+    Dim ws As Worksheet
+    Dim i As Integer
+    
+    ' Получаем ссылку на лист "Список договоров"
+    Set ws = ThisWorkbook.Worksheets("Список договоров")
+    
+    pair_to_search = UserForm6.Tag
+    
+    ID_to_search = Split(pair_to_search, "-")(0)
+    Date_to_search = Split(pair_to_search, "-")(1)
+    
+    If Not Date_to_search = 0 Then
+        ID_to_search = Split(pair_to_search, "-")(0)
+        Date_to_search = Format(Split(pair_to_search, "-")(1), "dd.mm.yy")
+    End If
+        
+    ' Очищаем ListBox1 перед добавлением новых элементов
+    ListBox1.Clear
+    
+    If Date_to_search = 0 Then
+    ' Цикл для перебора строк в листе "Список договоров"
+        For i = 2 To ws.Cells(ws.Rows.Count, 2).End(xlUp).Row
+            ' Проверяем условия для каждой строки
+            If ws.Cells(i, 2).Value = ID_to_search Then
+                ' Добавляем строку в ListBox1 как отдельный элемент
+                ListBox1.AddItem ws.Cells(i, 1).Value & "-" & ws.Cells(i, 2).Value & " от " & ws.Cells(i, 3).Value & " на сумму " & ws.Cells(i, 4).Value
+            End If
+        Next i
+    End If
+    
+    If ID_to_search = 0 Then
+        ' Цикл для перебора строк в листе "Список договоров"
+        For i = 2 To ws.Cells(ws.Rows.Count, 2).End(xlUp).Row
+            ' Проверяем условия для каждой строки
+            If ws.Cells(i, 3).Value = Date_to_search Then
+                ' Добавляем строку в ListBox1 как отдельный элемент
+                ListBox1.AddItem ws.Cells(i, 1).Value & "-" & ws.Cells(i, 2).Value & " от " & ws.Cells(i, 3).Value & " на сумму " & ws.Cells(i, 4).Value
+            End If
+        Next i
+        
+    Else
+        ' Цикл для перебора строк в листе "Список договоров"
+        For i = 2 To ws.Cells(ws.Rows.Count, 2).End(xlUp).Row
+            ' Проверяем условия для каждой строки
+            If ws.Cells(i, 3).Value = Date_to_search And ws.Cells(i, 2).Value = ID_to_search Then
+                ' Добавляем строку в ListBox1 как отдельный элемент
+                ListBox1.AddItem ws.Cells(i, 1).Value & "-" & ws.Cells(i, 2).Value & " от " & ws.Cells(i, 3).Value & " на сумму " & ws.Cells(i, 4).Value
+            End If
+        Next i
+    End If
+    
+
+End Sub
